@@ -1,62 +1,74 @@
 import time
+import random
 
-energia_total_local= 44.0  # Limite de energia do shopping (kW)
+energia_total_local= 0.0
+bateria_capacidade_kWh = 50.0
 lista_carregadores = []
 
-## 1. Configurar parâmetros:
-# - energia total disponível, consumo de energia, status de cada carregador, bateria
-lista_carregadores.append({"id": 1, "status": "Disponível", "consumo": 0.0, "bateria": 0})
-lista_carregadores.append({"id": 2, "status": "Disponível", "consumo": 0.0, "bateria": 0})
-lista_carregadores.append({"id": 3, "status": "Disponível", "consumo": 0.0, "bateria": 0})
+def mostrar_carregadores():
+    if len(lista_carregadores) == 0:
+        print("Nenhum carregador configurado! Por favor, adicione carregadores para visualizar.")
+        return
+    
+    print("---------------------------------------------------------------------")
+    for c in lista_carregadores:
+        bateria_text = f"Bateria: {int(round(c['bateria']))}%"
+        print(f"Carregador {c['id']:<2} | Status: {c['status']:<9} | {bateria_text:<13} | Consumo: {c['consumo']:<5.2f} kW")
+    print("---------------------------------------------------------------------")
 
+def add_carregadores():
+    lista_carregadores.clear()  
+    num_carregadores = int(input("Quantos carregadores deseja? "))
 
-## 2. Visualizar status:
+    while num_carregadores <= 0 or num_carregadores > 999:
+        print("Número inválido! Por favor, insira um valor inteiro ntre 1 e 999.")
+        num_carregadores = int(input("Quantos carregadores deseja? "))
 
-def configurar_parametros():
+    for i in range(num_carregadores):
+        lista_carregadores.append({"id": i + 1, "status": "Disponível", "consumo": 0.0, "bateria": 0})
+
+    print("\n---------------------------------------------------------------------")
+    print("Carregadores configurados com sucesso!")    
+    mostrar_carregadores()
+
+def configurar_energia():
     global energia_total_local
-    print("--- Configuração do Sistema ---")
-    nova_energia = float(input(f"Energia total atual é {energia_total_local}kw. Digite o novo limite: "))
-    energia_total_local= nova_energia
-    print(f"✅ Nova energia total disponível: {energia_total_local}kW\n")
-
+    print(f"Energia total atual é {energia_total_local} kW.")
+    nova_energia = float(input(f"Digite o novo limite: "))
+    
+    while nova_energia <= 0:
+        nova_energia = float(input("Valor inválido! Por favor, insira um valor maior que zero: "))
+                
+    energia_total_local = nova_energia
+    print(f"Nova energia total disponível: {energia_total_local} kW\n")
 
 def exibir_status():
-    print("\n================ STATUS ================")
-    consumo_atual_total = 0.0
-
-    for c in lista_carregadores:
-        print(
-            f"Carregador {c['id']} | Status: {c['status']:<25} | Bateria: {c['bateria']}% | Consumo: {c['consumo']} kW")
-        consumo_atual_total += c["consumo"]
-
-    print("--------------------------------------------------")
-    print(f"⚡ Energia Total do Shopping: {energia_total_local}kW")
-    print(f"Consumo Atual dos Eletropostos: {consumo_atual_total} kW")
-
-    if consumo_atual_total > energia_total_local:
-        print("ALERTA: Consumo atingiu nível crítico! Reduzindo carga.")
-    print("==================================================\n")
-
+    print(f"Energia Total Disponível: {energia_total_local} kW")
+    
+    mostrar_carregadores()
 
 def simular_carregamento():
-    print("=== Iniciando Simulação de Recarga Dinâmica ===")
-    print("Três carros vão entrar na simulação com intervalos de tempo de 15 segundos.\n")
+    minuto = 0
+    todos_terminaram = False
 
-    for c in lista_carregadores:
-        c["bateria"] = 0
-        c["status"] = "Aguardando Carro"
-        c["consumo"] = 0.0
+    if len(lista_carregadores) == 0:
+        print("Nenhum carregador configurado! Por favor, adicione carregadores antes de iniciar a simulação.")
+        return
 
-    for segundo in range(1, 60):
-        print(f"\n--- Tempo de Simulação: {segundo}s ---")
+    while todos_terminaram == False:
+        minuto += 1
+        print(f"\n--- Tempo de Simulação: {minuto} min ---")
 
-        if segundo >= 1 and lista_carregadores[0]["bateria"] < 100:
-            lista_carregadores[0]["status"] = "Carregando"
-        if segundo >= 15 and lista_carregadores[1]["bateria"] < 100:
-            lista_carregadores[1]["status"] = "Carregando"
-        if segundo >= 30 and lista_carregadores[2]["bateria"] < 100:
-            lista_carregadores[2]["status"] = "Carregando"
+        p = min(0.05 * len(lista_carregadores), 0.75)
+        if random.random() < p:
+            disponiveis = [c for c in lista_carregadores if c["status"] == "Disponível"]
+            if disponiveis:
+                escolhido = random.choice(disponiveis)
+                escolhido["status"] = "Carregando"
+                print(f"Carregador {escolhido['id']} iniciou o carregamento.")
+        
         ativos = 0
+            
         for c in lista_carregadores:
             if c["status"] == "Carregando":
                 ativos += 1
@@ -64,39 +76,41 @@ def simular_carregamento():
         for c in lista_carregadores:
             if c["status"] == "Carregando" and ativos > 0:
                 c["consumo"] = energia_total_local/ativos
-                c["bateria"] += int(c["consumo"] * 0.1)
+                
+                energia_entregue_kwh = c["consumo"] * (1/60)
+                aumento_percentual = (energia_entregue_kwh / bateria_capacidade_kWh) * 100
+                c["bateria"] += aumento_percentual
 
                 if c["bateria"] >= 100:
                     c["bateria"] = 100
-                    c["status"] = "Concluido (Taxa Ocupação)"
+                    c["status"] = "Concluído "
                     c["consumo"] = 0.0
-                    print(f"⚠️ Carregador {c['id']} chegou a 100%! Energia cortada e redistribuída.")
-            elif c["status"] != "Carregando" and c["status"] != "Concluido (Taxa Ocupação)":
+                    
+            elif c["status"] != "Carregando" and c["status"] != "Concluído ":
                 c["consumo"] = 0.0
 
-        for c in lista_carregadores:
-            print(f"[Posto {c['id']}] Status: {c['status']} | Bateria: {c['bateria']}% | Potência: {c['consumo']:.1f} kW")
+        mostrar_carregadores()
 
-        todos_terminaram = True
-        for c in lista_carregadores:
-            if c["bateria"] < 100:
-                todos_terminaram = False
+        todos_terminaram = all(c["bateria"] >= 100 for c in lista_carregadores)
 
         if todos_terminaram:
             print("\nTodos os veículos foram carregados com sucesso!")
+            for c in lista_carregadores:
+                c["status"] = "Disponível"
+                c["consumo"] = 0.0
+                c["bateria"] = 0
             break
 
-        time.sleep(1)
-
+        time.sleep(0.5)
 
 while True:
-    print("========================================================")
+    print("\n========================================================")
     print("Sistema Integrado de Carregadores GoodWee - Versão Alpha")
     print("========================================================")
-    print("(1) Configurar parâmetros")
-    print("(2) Visualizar status")
-    print("(3) Simular situações (Executar Recarga)")
-    print("(4) Sair")
+    print("(1) Configurar Parâmetros")
+    print("(2) Visualizar Status")
+    print("(3) Executar Recarga")
+    print("(0) Sair")
     print("========================================================")
 
     opcao = int(input("Escolha uma opção: "))
@@ -104,13 +118,20 @@ while True:
 
     match opcao:
         case 1:
-            configurar_parametros()
+            print("=== Configurar Parâmetros ===")
+            add_carregadores()
+            configurar_energia()
+            
         case 2:
+            print("=== Visualizar Status ===")
             exibir_status()
+
         case 3:
+            print("=== Iniciando Simulação de Recarga Dinâmica ===")
             simular_carregamento()
-        case 4:
-            print("Saindo do sistema... Trabalho Concluído!")
+
+        case 0:
+            print("Saindo do sistema...")
             break
         case _:
             print("Opção inválida! Tente novamente.")
