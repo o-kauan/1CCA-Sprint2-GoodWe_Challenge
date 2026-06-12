@@ -1,7 +1,4 @@
 # ChargeGrid Intelligence — Linha HCA G2 (GoodWe) ⚡🚗
-![Sprint](https://img.shields.io/badge/Sprint-2-orange?style=for-the-badge)
-
-**$Matéria: Pensamento Computacional e Automação com Python$**
 
 O ChargeGrid Intelligence é uma Prova de Conceito (PoC) desenvolvida em Python para o gerenciamento inteligente, automatizado e dinâmico de eletropostos comerciais. O projeto é fruto de um desafio prático corporativo (Challenge) em parceria com a multinacional **GoodWe**, focado na transposição de sua infraestrutura de carregadores elétricos residenciais (Linha HCA G2 — modelos GW7K, GW11K e GW22K-HCA-20) para cenários de alta demanda, como o estacionamento de shoppings centers.
 
@@ -21,8 +18,8 @@ Enquanto a etapa principal cumpriu o papel de mapear o cenário dos eletropostos
 
 Esta etapa atual marca a transição definitiva entre o planejamento conceitual e a execução técnica. O sistema apresenta uma interface de terminal robusta e intuitiva, operando por meio de um menu interativo estruturado em um menu composto por quatro opções principais de navegação:
 
-* **1. Configuração de Parâmetros:** Módulo responsável pela gestão energética, permitindo ao administrador monitorar o limite energético disponível no estabelecimento e reconfigurar dinamicamente o teto elétrico alocado para os carregadores.
-* **2. Visualização de Status:** Painel de monitoramento projetado para exibir o diagnóstico atual do sistema, detalhando o andamento do fluxo de recarga, histórico e o consumo individual em tempo real de cada posto.
+* **1. Configuração de Parâmetros:** Módulo responsável pela gestão energética e disponibilização de carregadores, permitindo ao administrador monitorar o limite energético disponível no estabelecimento e reconfigurar dinamicamente a quantidade de carregadores.
+* **2. Visualização de Status:** Painel de monitoramento projetado para exibir o diagnóstico atual do sistema, detalhando a disponibilidade dos carregadores e a potência real fornecida pelo estabelecimento.
 * **3. Executar Recarga (Simulação):** O núcleo prático do software, responsável por simular o comportamento prático e real dos veículos elétricos sob estímulos de uso do ambiente comercial, testando a eficiência do algoritmo sob demanda.
 * **4. Sair:** Função de encerramento seguro, responsável por finalizar o loop da aplicação e liberar os recursos do sistema.
 
@@ -72,7 +69,7 @@ O resultado é convertido no incremento percentual real na bateria, simulando fl
 
 Ao iniciar o programa pelo console, utilize os comandos do menu interativo:
 
-1 - Configurar Parâmetros: Define o número de pontos físicos disponíveis no shopping (de 1 a 999) e o teto máximo elétrico local do estabelecimento (em kW).
+1 - Configurar Parâmetros: Define o número de pontos físicos disponíveis no estabelecimento (de 1 a 999) e o teto máximo elétrico local do estabelecimento (em kW).
 
 2 - Visualizar Status: Exibe um relatório diagnóstico em tabela de toda a matriz de carregadores, os percentuais de bateria atuais e o consumo total em tempo real da rede.
 
@@ -109,3 +106,5 @@ graph TD
     M -->|Não| E
     M -->|Sim| N[Clear Automatizado: Reset de Estações para Disponível]
     N --> C
+
+```
